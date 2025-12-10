@@ -8,12 +8,11 @@ init(autoreset=True)
 # --- Konstanta & Fungsi Visual ---
 API = "https://zefame-free.com/api_free.php?action=config"
 
-def print_banner():
-    print(f"{Fore.MAGENTA}========================================================")
-    print(f"{Fore.MAGENTA}|             {Fore.WHITE}{Style.BRIGHT}TIKTOK BOOSTER INTERFACE{Fore.MAGENTA}                 |")
-    print(f"{Fore.MAGENTA}|             {Fore.CYAN}Enhanced UI Version{Fore.MAGENTA}                      |")
-    print(f"{Fore.MAGENTA}========================================================{Style.RESET_ALL}")
-    print()
+# --- MODIFIKASI DIMULAI DI SINI ---
+# Tentukan TOKEN RAHASIA kamu di sini
+# Kamu bisa ganti dengan kombinasi huruf/angka yang unik
+SECRET_TOKEN = "St44&|$Jk[um-vDvsP={f)YrG}ggFpmOMy9q" 
+MAX_ATTEMPTS = 3 # Batas maksimal percobaan
 
 def print_status(text, type='info'):
     if type == 'info':
@@ -24,6 +23,38 @@ def print_status(text, type='info'):
         print(f"{Fore.RED}[!] {text}{Style.RESET_ALL}")
     elif type == 'wait':
         print(f"{Fore.YELLOW}[~] {text}{Style.RESET_ALL}")
+
+def authenticate_user():
+    """Meminta dan memvalidasi token akses"""
+    print(f"\n{Fore.YELLOW}*** AUTHENTICATION REQUIRED ***{Style.RESET_ALL}")
+    
+    attempts = 0
+    while attempts < MAX_ATTEMPTS:
+        # Menggunakan getpass agar input token tidak terlihat di layar
+        # Namun, karena getpass membutuhkan library tambahan, kita pakai input biasa dulu.
+        # Jika ingin lebih aman, install dan gunakan library 'getpass'.
+        
+        user_input = input(f"{Fore.YELLOW}[?] Enter Access Token ({MAX_ATTEMPTS - attempts} attempts left): {Style.RESET_ALL}").strip()
+        
+        if user_input == SECRET_TOKEN:
+            print_status("Access Granted. Loading services...", "success")
+            return True
+        else:
+            attempts += 1
+            print_status("Invalid Token. Try again.", "error")
+            
+    print_status(f"Maximum attempts reached. Access denied.", "error")
+    sys.exit()
+
+# Fungsi Banner dan Countdown tetap sama (dihilangkan untuk fokus pada token)
+# ...
+
+def print_banner():
+    print(f"{Fore.MAGENTA}========================================================")
+    print(f"{Fore.MAGENTA}|             {Fore.WHITE}{Style.BRIGHT}TIKTOK BOOSTER INTERFACE{Fore.MAGENTA}                 |")
+    print(f"{Fore.MAGENTA}|             {Fore.CYAN}Enhanced UI Version{Fore.MAGENTA}                      |")
+    print(f"{Fore.MAGENTA}========================================================{Style.RESET_ALL}")
+    print()
 
 def animated_countdown(seconds):
     """Menampilkan countdown timer yang berjalan mundur"""
@@ -40,6 +71,8 @@ def animated_countdown(seconds):
     except KeyboardInterrupt:
         sys.exit()
 
+# --- MODIFIKASI SELESAI DI SINI ---
+
 names = {
     229: "TikTok Views",
     228: "TikTok Followers",
@@ -48,9 +81,14 @@ names = {
     236: "TikTok Free Favorites"
 }
 
-# --- Logika Utama (Tidak Diubah Fungsinya) ---
+# --- Logika Utama (Dengan Pengecekan Token) ---
 
 print_banner()
+
+# Panggil fungsi otentikasi
+if not authenticate_user():
+    sys.exit() # Jika otentikasi gagal, script akan keluar.
+
 print_status("Loading configuration...", "info")
 
 if len(sys.argv) > 1:
@@ -73,7 +111,7 @@ print(f"{Fore.WHITE}--------------------------------------------------------")
 for i, service in enumerate(services, 1):
     sid = service.get('id')
     name = names.get(sid, service.get('name', '').strip())
-    # Memotong nama jika terlalu panjang agar tabel rapi
+    
     if len(name) > 20: name = name[:17] + "..."
     
     rate = service.get('description', '').strip()
@@ -130,14 +168,12 @@ while True:
                                   "videoId": video_id})
         result = order.json()
         
-        # Membersihkan Output JSON agar enak dibaca
         message = result.get('message', 'Unknown response')
         data_resp = result.get('data', {})
         
         if result.get('success') or (isinstance(data_resp, dict) and not result.get('error')):
             print_status(f"Success! {message}", "success")
         else:
-            # Seringkali API mengirim pesan error di dalam 'message'
             print_status(f"Response: {message}", "info")
 
         wait = result.get("data", {}).get("nextAvailable")
@@ -150,12 +186,10 @@ while True:
                     remaining = int(wait - current_time + 1)
                     animated_countdown(remaining)
                 else:
-                    # Jika waktu tunggu lewat tapi loop terlalu cepat, beri jeda kecil
                     time.sleep(2)
             except ValueError:
                 pass
         else:
-            # Default sleep jika tidak ada data wait dari API
             time.sleep(5)
             
     except Exception as e:
