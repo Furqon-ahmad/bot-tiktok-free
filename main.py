@@ -8,11 +8,9 @@ init(autoreset=True)
 # --- Konstanta & Fungsi Visual ---
 API = "https://zefame-free.com/api_free.php?action=config"
 
-# --- MODIFIKASI DIMULAI DI SINI ---
-# Tentukan TOKEN RAHASIA kamu di sini
-# Kamu bisa ganti dengan kombinasi huruf/angka yang unik
-SECRET_TOKEN = "St44&|$Jk[um-vDvsP={f)YrG}ggFpmOMy9q" 
-MAX_ATTEMPTS = 3 # Batas maksimal percobaan
+# --- MODIFIKASI: SUMBER TOKEN DARI PASTEBIN ---
+TOKEN_SOURCE_URL = "https://pastebin.com/raw/jRbHDWPi" # Menggunakan URL RAW
+MAX_ATTEMPTS = 1 # Batas maksimal percobaan
 
 def print_status(text, type='info'):
     if type == 'info':
@@ -24,17 +22,37 @@ def print_status(text, type='info'):
     elif type == 'wait':
         print(f"{Fore.YELLOW}[~] {text}{Style.RESET_ALL}")
 
+def get_secret_token():
+    """Mengambil token rahasia dari Pastebin URL."""
+    print_status(f"Fetching secret token from: {TOKEN_SOURCE_URL}", "info")
+    try:
+        response = requests.get(TOKEN_SOURCE_URL, timeout=10)
+        # Pastikan response sukses dan ambil token (hapus spasi ekstra jika ada)
+        if response.status_code == 200:
+            return response.text.strip()
+        else:
+            print_status(f"Failed to fetch token. HTTP Status: {response.status_code}", "error")
+            return None
+    except requests.exceptions.RequestException as e:
+        print_status(f"Connection error when fetching token: {e}", "error")
+        return None
+
 def authenticate_user():
-    """Meminta dan memvalidasi token akses"""
+    """Meminta dan memvalidasi token akses dari pengguna terhadap token Pastebin."""
+    
+    # --- LANGKAH 1: Ambil Token Rahasia dari URL ---
+    SECRET_TOKEN = get_secret_token()
+    if not SECRET_TOKEN:
+        print_status("Cannot proceed without a valid token source. Exiting.", "error")
+        sys.exit()
+
+    # --- LANGKAH 2: Interaksi dan Validasi Pengguna ---
     print(f"\n{Fore.YELLOW}*** AUTHENTICATION REQUIRED ***{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}[*] Silakan kunjungi {Fore.BLUE}{Style.BRIGHT}{TOKEN_SOURCE_URL.replace('/raw/', '/')}{Fore.CYAN} untuk mendapatkan Token Akses terbaru.")
     
     attempts = 0
     while attempts < MAX_ATTEMPTS:
-        # Menggunakan getpass agar input token tidak terlihat di layar
-        # Namun, karena getpass membutuhkan library tambahan, kita pakai input biasa dulu.
-        # Jika ingin lebih aman, install dan gunakan library 'getpass'.
-        
-        user_input = input(f"{Fore.YELLOW}[?] Enter Access Token ({MAX_ATTEMPTS - attempts} attempts left): {Style.RESET_ALL}").strip()
+        user_input = input(f"{Fore.GREEN}[?] Enter Access Token ({MAX_ATTEMPTS - attempts} attempts left): {Style.RESET_ALL}").strip()
         
         if user_input == SECRET_TOKEN:
             print_status("Access Granted. Loading services...", "success")
@@ -45,9 +63,7 @@ def authenticate_user():
             
     print_status(f"Maximum attempts reached. Access denied.", "error")
     sys.exit()
-
-# Fungsi Banner dan Countdown tetap sama (dihilangkan untuk fokus pada token)
-# ...
+# --- MODIFIKASI SELESAI ---
 
 def print_banner():
     print(f"{Fore.MAGENTA}========================================================")
@@ -71,8 +87,6 @@ def animated_countdown(seconds):
     except KeyboardInterrupt:
         sys.exit()
 
-# --- MODIFIKASI SELESAI DI SINI ---
-
 names = {
     229: "TikTok Views",
     228: "TikTok Followers",
@@ -81,13 +95,13 @@ names = {
     236: "TikTok Free Favorites"
 }
 
-# --- Logika Utama (Dengan Pengecekan Token) ---
+# --- Logika Utama ---
 
 print_banner()
 
-# Panggil fungsi otentikasi
+# Panggil fungsi otentikasi yang sekarang mengambil token dari Pastebin
 if not authenticate_user():
-    sys.exit() # Jika otentikasi gagal, script akan keluar.
+    sys.exit() 
 
 print_status("Loading configuration...", "info")
 
