@@ -25,3 +25,8 @@ Jalankan perintah berikut di Terminal atau Command Prompt Anda:
 
 ```bash
 pip install requests colorama
+
+### 🚨 **Disclaimer dan Peringatan**
+Rate Limit: Layanan ini tunduk pada Rate Limiting server API. Jangan mencoba mem-bypass Cooldown Timer karena hal itu hanya akan menyebabkan request ditolak atau IP Anda diblokir.
+
+Tujuan: Script ini dibuat untuk tujuan edukasi dan otomatisasi pribadi. Penggunaan berlebihan atau spamming adalah tanggung jawab pengguna.
