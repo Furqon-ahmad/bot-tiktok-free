@@ -9,8 +9,8 @@ init(autoreset=True)
 API = "https://zefame-free.com/api_free.php?action=config"
 
 # --- MODIFIKASI: SUMBER TOKEN DARI PASTEBIN ---
-TOKEN_SOURCE_URL = "https://pastebin.com/raw/jRbHDWPi" # Menggunakan URL RAW
-MAX_ATTEMPTS = 1 # Batas maksimal percobaan
+TOKEN_SOURCE_URL = "https://pastebin.com/raw/M96A78Zy" # Menggunakan URL RAW
+MAX_ATTEMPTS = 3 # Batas maksimal percobaan
 
 def print_status(text, type='info'):
     if type == 'info':
@@ -208,4 +208,5 @@ while True:
             
     except Exception as e:
         print_status(f"Loop Error: {e}", "error")
+
         time.sleep(5)
